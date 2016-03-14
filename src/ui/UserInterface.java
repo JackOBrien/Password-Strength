@@ -9,13 +9,21 @@ import java.awt.event.KeyListener;
 
 public class UserInterface extends JFrame {
 
-    JPanel topPanel;
-    JTextField passwordField;
+    private JPanel mainPanel;
+    private JTextField passwordField;
 
-    JLabel hasLowerLabel;
-    JLabel hasUpperLabel;
-    JLabel hasNumberLabel;
-    JLabel hasSymbol;
+    private JLabel hasLowerLabel;
+    private JLabel hasUpperLabel;
+    private JLabel hasNumberLabel;
+    private JLabel hasSymbol;
+
+    private JLabel crackTime;
+
+    private final String X = "[✖]";
+    private final String CHECK = "[✔]";
+
+    private final Color RED = Color.RED;
+    private final Color GREEN = new Color(37, 158, 50);
 
     public UserInterface() {
         this.setPreferredSize(new Dimension(700, 500));
@@ -23,14 +31,14 @@ public class UserInterface extends JFrame {
 
         setupPanel();
 
-
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.pack();
         this.setVisible(true);
     }
 
     private void setupPanel() {
-        topPanel = new JPanel();
+        mainPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
 
 //        passwordField = new JPasswordField();
         passwordField = new JTextField();
@@ -38,17 +46,46 @@ public class UserInterface extends JFrame {
         passwordField.setColumns(25);
         passwordField.addKeyListener(passwordListener);
 
-        hasLowerLabel = new JLabel("No Lower Case");
-        hasUpperLabel = new JLabel("No Upper Case");
-        hasNumberLabel = new JLabel("No Number");
-        hasSymbol = new JLabel("No Special Characters");
 
-        topPanel.add(passwordField);
-        topPanel.add(hasLowerLabel);
-        topPanel.add(hasUpperLabel);
-        topPanel.add(hasNumberLabel);
-        topPanel.add(hasSymbol);
-        this.add(topPanel);
+
+        // -- Add components to the main panel --
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 3;
+        c.anchor = GridBagConstraints.CENTER;
+        mainPanel.add(passwordField, c);
+
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 2;
+        c.anchor = GridBagConstraints.LINE_START;
+        mainPanel.add(createReqsPanel(), c);
+
+        this.add(mainPanel);
+    }
+
+    private JPanel createReqsPanel() {
+        JPanel requirementsPanel = new JPanel();
+        requirementsPanel.setLayout(new BoxLayout(requirementsPanel, BoxLayout.Y_AXIS));
+
+        hasLowerLabel = new JLabel(X + " No Lower Case");
+        hasLowerLabel.setForeground(RED);
+
+        hasUpperLabel = new JLabel(X + " No Upper Case");
+        hasUpperLabel.setForeground(RED);
+
+        hasNumberLabel = new JLabel(X + " No Number");
+        hasNumberLabel.setForeground(RED);
+
+        hasSymbol = new JLabel(X + " No Special Characters");
+        hasSymbol.setForeground(RED);
+
+        requirementsPanel.add(hasLowerLabel);
+        requirementsPanel.add(hasUpperLabel);
+        requirementsPanel.add(hasNumberLabel);
+        requirementsPanel.add(hasSymbol);
+
+        return requirementsPanel;
     }
 
     private KeyListener passwordListener = new KeyListener() {
@@ -63,11 +100,37 @@ public class UserInterface extends JFrame {
         public void keyReleased(KeyEvent e) {
             Model model = new Model(passwordField.getText());
 
-            hasLowerLabel.setText(!model.hasLowerChar() ? "No Lower Case" : "Has Lower Case");
-            hasUpperLabel.setText(!model.hasUpperChar() ? "No Upper Case" : "Has Upper Case");
-            hasNumberLabel.setText(!model.hasNumber() ? "No Number" : "Has Number");
-            hasSymbol.setText(!model.hasSymbol() ? "No Special Characters" : "Has Special Character");
+            if (model.hasLowerChar()) {
+                hasLowerLabel.setText(CHECK + " Has Lower Case");
+                hasLowerLabel.setForeground(GREEN);
+            } else {
+                hasLowerLabel.setText(X + " No Lower Case");
+                hasLowerLabel.setForeground(RED);
+            }
 
+            if (model.hasUpperChar()) {
+                hasUpperLabel.setText(CHECK + " Has Upper Case");
+                hasUpperLabel.setForeground(GREEN);
+            } else {
+                hasUpperLabel.setText(X + " No Upper Case");
+                hasUpperLabel.setForeground(RED);
+            }
+
+            if (model.hasNumber()) {
+                hasNumberLabel.setText(CHECK + " Has Number");
+                hasNumberLabel.setForeground(GREEN);
+            } else {
+                hasNumberLabel.setText(X + " No Number");
+                hasNumberLabel.setForeground(RED);
+            }
+
+            if (model.hasSymbol()) {
+                hasSymbol.setText(CHECK + " Has Special Character");
+                hasSymbol.setForeground(GREEN);
+            } else {
+                hasSymbol.setText(X + " No Special Characters");
+                hasSymbol.setForeground(RED);
+            }
         }
     };
 }
