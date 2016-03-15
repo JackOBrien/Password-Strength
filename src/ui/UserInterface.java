@@ -26,7 +26,7 @@ public class UserInterface extends JFrame {
     private final Color GREEN = new Color(37, 158, 50);
 
     public UserInterface() {
-        this.setPreferredSize(new Dimension(700, 500));
+//        this.setPreferredSize(new Dimension(700, 500));
         this.setTitle("Password Strength Tester");
 
         setupPanel();
@@ -46,7 +46,10 @@ public class UserInterface extends JFrame {
         passwordField.setColumns(25);
         passwordField.addKeyListener(passwordListener);
 
-
+        JPanel timePanel = new JPanel(new BorderLayout());
+        timePanel.setPreferredSize(new Dimension(400, 30));
+        crackTime = new JLabel("Test Text");
+        timePanel.add(crackTime, BorderLayout.CENTER);
 
         // -- Add components to the main panel --
         c.gridx = 0;
@@ -60,6 +63,13 @@ public class UserInterface extends JFrame {
         c.gridy = 2;
         c.anchor = GridBagConstraints.LINE_START;
         mainPanel.add(createReqsPanel(), c);
+
+        c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 1;
+        c.gridwidth = 3;
+        c.anchor = GridBagConstraints.CENTER;
+        mainPanel.add(timePanel, c);
 
         this.add(mainPanel);
     }
