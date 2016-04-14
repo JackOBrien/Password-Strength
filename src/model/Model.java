@@ -14,6 +14,8 @@ public class Model {
     private int characterSet;
     private double calcsPerSecond;
 
+    private int commonNumber;
+
     private final int LOWER_CHARSET = 26;
     private final int UPPER_CHARSET = 26;
     private final int NUMBER_CHARSET = 10;
@@ -21,10 +23,11 @@ public class Model {
 
     private final String PASSWORD_FILE = "src/model/10k_most_common.txt";
 
-    public Model(String password) {
+    public Model(String password, double calcsPerSecond) {
         this.password = password;
         characterSet = 0;
-        calcsPerSecond = 4000000000f;
+        this.calcsPerSecond = calcsPerSecond;
+        commonNumber = 0;
     }
 
     public BigDecimal getCrackTime() throws NumberFormatException {
@@ -45,7 +48,7 @@ public class Model {
             characterSet += SYMBOL_CHARSET;
         }
 
-        return new BigDecimal(Math.pow(characterSet, password.length())/calcsPerSecond);
+        return new BigDecimal((Math.pow(characterSet, password.length())/calcsPerSecond) / 2);
     }
 
     public boolean hasLowerChar() {
@@ -67,19 +70,66 @@ public class Model {
     private boolean searchFile() throws FileNotFoundException {
         File file = new File(PASSWORD_FILE);
         final Scanner scanner = new Scanner(file);
+
+        int count = 1;
         while (scanner.hasNextLine()) {
             final String lineFromFile = scanner.nextLine();
             if(lineFromFile.equals(password)) {
+                commonNumber = count;
                 return true;
             }
+            count ++;
         }
 
+        commonNumber = 0;
         return false;
+    }
+
+    public int getCommonRange() {
+        if (commonNumber < 1) {
+            return 0;
+        }
+
+        else if (commonNumber <= 5) {
+            return 5;
+        }
+
+        else if (commonNumber <= 10) {
+            return 10;
+        }
+
+        else if (commonNumber <= 20) {
+            return 20;
+        }
+
+        else if (commonNumber <= 50) {
+            return 50;
+        }
+
+        else if (commonNumber <= 100) {
+            return 100;
+        }
+
+        else if (commonNumber <= 500) {
+            return 500;
+        }
+
+        else if (commonNumber <= 1000) {
+            return 1000;
+        }
+
+        else if (commonNumber <= 5000) {
+            return 5000;
+        }
+
+        else {
+            return 10000;
+        }
     }
 
     public String prettyCrackTime() {
 
-        if (password.length() < 1) return "Enter Password";
+        if (password.length() < 1) return "< Enter Password >";
 
         boolean inFile = false;
 
@@ -103,10 +153,16 @@ public class Model {
 
         String unit;
 
-        if (time.compareTo(new BigDecimal(0.000999)) <= 0) {
+        if (time.compareTo(new BigDecimal(0.000001)) <= 0) {
+            time = time.multiply(new BigDecimal(1000000000));
+            time = time.setScale(6, BigDecimal.ROUND_HALF_UP);
+            unit = " nanoseconds";
+        }
+
+        else if (time.compareTo(new BigDecimal(1)) <= 0) {
             time = time.multiply(new BigDecimal(1000));
             time = time.setScale(6, BigDecimal.ROUND_HALF_UP);
-            unit = " millisecond";
+            unit = " milliseconds";
         }
 
         else if (time.compareTo(new BigDecimal(3600)) < 0) {
@@ -133,12 +189,22 @@ public class Model {
             unit = " weeks";
         }
 
-        else {
+        else if (time.compareTo(new BigDecimal(Math.pow(10,35))) >= 0){
             BigDecimal divisor = new BigDecimal(3.145 * Math.pow(10, 7));
             time = time.divide(divisor, 2, BigDecimal.ROUND_HALF_UP);
             time = time.setScale(2, BigDecimal.ROUND_HALF_UP);
-            String str = NumberFormat.getNumberInstance().format(time.setScale(2, BigDecimal.ROUND_HALF_UP));
-//            String str = String.format("%,d", time.setScale(2, BigDecimal.ROUND_HALF_UP));
+
+            NumberFormat formatter = new DecimalFormat("0.0E0");
+            formatter.setRoundingMode(RoundingMode.HALF_UP);
+            formatter.setMinimumFractionDigits((time.scale() > 0) ? time.precision() : time.scale());
+            formatter.setMaximumFractionDigits(5);
+            return formatter.format(time) + " years";
+        }
+
+        else {
+            BigDecimal divisor = new BigDecimal("3.145E7");
+            time = time.divide(divisor, 2, BigDecimal.ROUND_HALF_UP);
+            time = time.setScale(2, BigDecimal.ROUND_HALF_UP);
             unit = " years";
         }
 
@@ -146,7 +212,7 @@ public class Model {
         df.setMaximumFractionDigits(6);
         df.setRoundingMode(RoundingMode.HALF_UP);
 
-        String formatted = "";
+        String formatted;
 
         try {
             formatted = df.format(time);
