@@ -1,9 +1,9 @@
 package model;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Scanner;
@@ -21,9 +21,10 @@ public class Model {
     private final int NUMBER_CHARSET = 10;
     private final int SYMBOL_CHARSET = 35;
 
-    private final String PASSWORD_FILE = "src/model/10k_most_common.txt";
+    private final String PASSWORD_FILE = "/passwords.txt";
 
     public Model(String password, double calcsPerSecond) {
+
         this.password = password;
         characterSet = 0;
         this.calcsPerSecond = calcsPerSecond;
@@ -67,9 +68,12 @@ public class Model {
         return !password.matches("[A-Za-z0-9 ]*");
     }
 
-    private boolean searchFile() throws FileNotFoundException {
-        File file = new File(PASSWORD_FILE);
-        final Scanner scanner = new Scanner(file);
+    private boolean searchFile() throws IOException {
+
+        URL url = Model.class.getResource(PASSWORD_FILE);
+
+//        File file = new File(url.openStream());
+        final Scanner scanner = new Scanner(url.openStream());
 
         int count = 1;
         while (scanner.hasNextLine()) {
@@ -135,7 +139,7 @@ public class Model {
 
         try {
             inFile = searchFile();
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

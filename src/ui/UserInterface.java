@@ -289,8 +289,6 @@ public class UserInterface extends JFrame {
                 hasSymbol.setForeground(RED_FG);
             }
 
-            String text = model.prettyCrackTime();
-
             BigDecimal bd = null;
             try {
                 bd = model.getCrackTime();
