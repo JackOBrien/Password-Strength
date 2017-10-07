@@ -65,7 +65,7 @@ public class Model {
     }
 
     public boolean hasSymbol() {
-        return !password.matches("[A-Za-z0-9 ]*");
+        return !password.matches("/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/");
     }
 
     private boolean searchFile() throws IOException {
@@ -133,7 +133,7 @@ public class Model {
 
     public String prettyCrackTime() {
 
-        if (password.length() < 1) return "< Enter Password >";
+        if (password.length() < 1) return "< Please Enter Password >";
 
         boolean inFile = false;
 
